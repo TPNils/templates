@@ -1,44 +1,30 @@
 {
-  "name": "foundry-typescript-template",
+  "name": "@tpnils/templates",
   "version": "1.0.0",
-  "description": "Foundry VTT Typescript Template",
+  "description": "Typescript Template",
   "main": "index.js",
   "scripts": {
-    "build": "gulp build",
-    "package": "gulp buildZip",
-    "dev": "gulp watch",
-    "patch": "gulp publish -u patch",
-    "minor": "gulp publish -u minor",
-    "major": "gulp publish -u major",
-    "reupload": "gulp reupload",
-    "updateSrcPacks": "gulp updateSrcPacks",
-    "updateZipManifestForGithub": "gulp updateZipManifestForGithub",
-    "updateExternalManifestForGithub": "gulp updateExternalManifestForGithub"
+    "dev": "ts-node src/index.ts",
+    "build": "tsc && shx rm -rf dist/templates && shx cp -r src/templates dist"
   },
-  "author": "",
+  "bin": {
+    "tpnils-templates": "./dist/index.js"
+  },
+  "author": "TPNils",
   "license": "MIT",
   "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "^9.280.0",
-    "@types/gulp": "^4.0.9",
+    "@types/ejs": "^3.1.2",
+    "@types/inquirer": "^0.0.43",
     "@types/node": "^16.10.1",
-    "archiver": "^5.0.0",
+    "@types/shelljs": "^0.8.12",
     "chalk": "^4.1.2",
-    "del": "^6.0.0",
-    "fs-extra": "^9.0.1",
-    "glob": "^7.1.7",
-    "gulp": "^4.0.2",
-    "gulp-clean-css": "^4.3.0",
-    "gulp-filter": "^7.0.0",
-    "gulp-less": "^4.0.1",
-    "gulp-minify": "^3.1.0",
-    "gulp-sass": "^5.0.0",
-    "gulp-sourcemaps": "^3.0.0",
-    "gulp-typescript": "^6.0.0-alpha.1",
-    "gulp-uglify": "^3.0.2",
-    "json-stringify-pretty-compact": "^2.0.0",
-    "open": "^8.4.0",
-    "sass": "^1.26.10",
+    "shx": "^0.3.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "ejs": "^3.1.9",
+    "inquirer": "^6.2.0",
+    "shelljs": "^0.8.5"
   }
 }

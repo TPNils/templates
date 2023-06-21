@@ -1,6 +1,6 @@
 {
-  "id": "foundry-typescript-template",
-  "title": "Typescript Template",
+  "id": "<%= projectName %>",
+  "title": "<%= projectLabel %>",
   "version": "0.0.0",
   "compatibility": {
     "minimum": "11",
