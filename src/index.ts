@@ -26,8 +26,7 @@ const QUESTIONS: Array<{name: keyof CliOptions} & inquirer.Question> = [
       name: 'projectName',
       type: 'input',
       message: 'Project developer name:',
-      default: 'testing',
-      // default: path.parse(workingDir).base,
+      default: path.parse(workingDir).base,
   },
   {
       name: 'projectLabel',
