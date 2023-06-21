@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "npm run build && node ./dist/index.js",
-    "build": "tsc && shx rm -rf dist/templates && shx cp -r templates dist"
+    "build": "tsc && shx rm -rf dist/templates && shx cp -r templates dist",
+    "publish": "npm publish --access=public"
   },
   "bin": {
     "tpnils-templates": "./dist/index.js"
