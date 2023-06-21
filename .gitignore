@@ -1,7 +1,7 @@
 /*
 !/.gitignore
 !/.github
-!/gulpfile.js
+!/gulpfile.ts
 !/config.json
 !/package.json
 !/package-lock.json
