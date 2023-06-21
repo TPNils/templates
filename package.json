@@ -1,11 +1,11 @@
 {
   "name": "@tpnils/templates",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Typescript Template",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "build": "tsc && shx rm -rf dist/templates && shx cp -r src/templates dist"
+    "dev": "npm run build && node ./dist/index.js",
+    "build": "tsc && shx rm -rf dist/templates && shx cp -r templates dist"
   },
   "bin": {
     "tpnils-templates": "./dist/index.js"
