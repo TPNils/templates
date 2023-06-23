@@ -2,24 +2,58 @@ import * as fs from 'fs-extra';
 import * as chalk from 'chalk';
 import * as stringify from 'json-stringify-pretty-compact';
 import { foundryManifest } from './foundry-manifest';
-import { configJson } from './config';
 import { cli } from './cli';
 import { args } from './args';
 
 export class Git {
   public async updateManifestForGithub({source, externalManifest}: {source: boolean, externalManifest: boolean}): Promise<void> {
     const packageJson = fs.readJSONSync('package.json');
-    const config = configJson.getConfig();
     const manifest = foundryManifest.getManifest();
-
-    if (!config) {
-      throw new Error(chalk.red('foundryconfig.json not found in the ./ (root) folder'));
-    }
     if (!manifest) {
       throw new Error(chalk.red('Manifest JSON not found in the ./src folder'));
     }
-    if (!config.githubRepository) {
-      throw new Error(chalk.red('Missing "githubRepository" property in ./config.json. Expected format: <githubUsername>/<githubRepo>'));
+    let remoteName: string;
+    {
+      const out = await cli.execPromise('git remote');
+      if (out.stdout) {
+        const lines = out.stdout.split('\n');
+        if (lines.length === 1) {
+          remoteName = lines[0];
+        }
+      }
+    }
+    if (remoteName == null) {
+      // Find the correct remote
+      const out = await cli.execPromise('git branch -vv --no-color');
+      if (out.stdout) {
+        const rgx = /^\* [^\s]+ +[0-9a-fA-F]+ \[([^\/]+)\//;
+        for (const line of out.stdout.split('\n')) {
+          const match = rgx.exec(line);
+          if (match) {
+            remoteName = match[1];
+          }
+        }
+      }
+    }
+
+    if (remoteName == null) {
+      throw new Error(chalk.red('Could not find the remote git url.'));
+    }
+    const remoteUrl = await cli.execPromise(`git remote get-url --push "${remoteName.replace(/"/g, '\\"')}"`);
+    cli.throwError(remoteUrl);
+    console.log({out: remoteUrl.stdout.trim()})
+    let githubRepository: string;
+    const sshRgx = /^git@github\.com:(.*)\.git$/i.exec(remoteUrl.stdout.trim());
+    if (sshRgx) {
+      githubRepository = sshRgx[1];
+    } else {
+      const httpRgx = /^https?:\/\/github\.com\/(.*)\.git$/i.exec(remoteUrl.stdout.trim());
+      if (httpRgx) {
+        githubRepository = httpRgx[1];
+      }
+    }
+    if (githubRepository == null) {
+      throw new Error(chalk.red(`Git remote "${remoteName}" was not detected as a github repo.`));
     }
 
     const currentVersion = manifest.file.version;
@@ -37,18 +71,18 @@ export class Git {
     packageJson.version = targetVersion;
 
     manifest.file.version = targetVersion;
-    manifest.file.url = `https://github.com/${config.githubRepository}`;
+    manifest.file.url = `https://github.com/${githubRepository}`;
     // When foundry checks if there is an update, it will fetch the manifest present in the zip, for us it points to the latest one.
     // The external one should point to itself so you can download a specific version
     // The zipped one should point to the latest manifest so when the "check for update" is executed it will fetch the latest
     if (externalManifest) {
       // Seperate file uploaded for github
-      manifest.file.manifest = `https://github.com/${config.githubRepository}/releases/download/v${targetVersion}/module.json`;
+      manifest.file.manifest = `https://github.com/${githubRepository}/releases/download/v${targetVersion}/module.json`;
     } else {
       // The manifest which is within the module zip
-      manifest.file.manifest = `https://github.com/${config.githubRepository}/releases/download/latest/module.json`;
+      manifest.file.manifest = `https://github.com/${githubRepository}/releases/download/latest/module.json`;
     }
-    manifest.file.download = `https://github.com/${config.githubRepository}/releases/download/v${targetVersion}/module.zip`;
+    manifest.file.download = `https://github.com/${githubRepository}/releases/download/v${targetVersion}/module.zip`;
 
     fs.writeFileSync(
       'package.json',
