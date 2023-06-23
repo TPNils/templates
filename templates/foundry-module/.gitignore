@@ -1,5 +1,6 @@
 /*
 !/.gitignore
+!/.npmignore
 !/.github
 !/gulpfile.ts
 !/config.json
