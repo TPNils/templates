@@ -1,6 +1,6 @@
 {
   "name": "@tpnils/templates",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Typescript Template",
   "main": "index.js",
   "scripts": {
