@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
 import * as path from 'path';
-import * as inquirer from 'inquirer';
+import * as enquirer from 'enquirer';
 import * as shell from 'shelljs';
 import * as ejs from 'ejs';
 
@@ -14,27 +14,6 @@ interface CliOptions {
 // Cache the absolute paths
 const scriptDir = path.resolve(__dirname);
 const workingDir = path.resolve(process.cwd());
-
-const QUESTIONS: Array<{name: keyof CliOptions} & inquirer.Question> = [
-  {
-      name: 'template',
-      type: 'list',
-      message: 'What project template would you like to generate?',
-      choices: fs.readdirSync(path.join(scriptDir, 'templates')),
-  },
-  {
-      name: 'projectName',
-      type: 'input',
-      message: 'Project developer name:',
-      default: path.parse(workingDir).base,
-  },
-  {
-      name: 'projectLabel',
-      type: 'input',
-      message: 'Project display name:',
-      default: (answers: CliOptions) => answers.projectName,
-  }
-];
 
 async function deepCopy(templatePath: string, targetPath: string, options: CliOptions) {
   const SKIP_FILES = ['node_modules', '.template.json'];
@@ -79,8 +58,36 @@ async function deepCopy(templatePath: string, targetPath: string, options: CliOp
   }
 }
 
+async function doPrompt(): Promise<CliOptions> {
+  const response: CliOptions = await enquirer.prompt([
+    {
+      name: 'template',
+      type: 'multiselect',
+      message: 'What project template would you like to generate?',
+      choices: fs.readdirSync(path.join(scriptDir, 'templates')),
+    },
+    {
+        name: 'projectName',
+        type: 'input',
+        message: 'Project developer name:',
+        initial: path.parse(workingDir).base,
+    },
+  ]);
+
+  response.projectLabel = await enquirer.prompt([
+      {
+        name: 'projectLabel',
+        type: 'input',
+        message: 'Project display name:',
+        initial: response.projectName,
+    }
+  ]).then((r: CliOptions) => r.projectName)
+
+  return response
+}
+
 async function start() {
-  const options: CliOptions = (await inquirer.prompt(QUESTIONS)) as any;
+  const options: CliOptions = await doPrompt();
   const targetPath = options.projectName === path.parse(workingDir).base ? workingDir : path.join(workingDir, options.projectName);
   const templatePath = path.join(scriptDir, 'templates', options.template);
 
