@@ -65,12 +65,15 @@ async function doPrompt(): Promise<CliOptions> {
       type: 'multiselect',
       message: 'What project template would you like to generate?',
       choices: fs.readdirSync(path.join(scriptDir, 'templates')),
+      initial: 0,
+      required: true,
     },
     {
         name: 'projectName',
         type: 'input',
         message: 'Project developer name:',
         initial: path.parse(workingDir).base,
+        required: true,
     },
   ]);
 
