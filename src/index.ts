@@ -62,7 +62,7 @@ async function doPrompt(): Promise<CliOptions> {
   const response: CliOptions = await enquirer.prompt([
     {
       name: 'template',
-      type: 'multiselect',
+      type: 'select',
       message: 'What project template would you like to generate?',
       choices: fs.readdirSync(path.join(scriptDir, 'templates')),
       initial: 0,
